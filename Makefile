@@ -1,8 +1,8 @@
 TARGET = rd6006p
 PREFIX = /usr/local/bin
-SRCS = main.c
+SRCS = main.c rd6006p.c
 OBJS = $(SRCS:.c=.o)
-CFLAGS = -O2 -Wall
+CFLAGS = -O2 -Wall -lmodbus
 
 .PHONY: all clean install uninstall
 
