@@ -16,14 +16,14 @@ bool rd6006p_open(const char *device, int slave_addr)
 {
 	ctx = modbus_new_rtu(device, 115200, 'N', 8, 1);
 	if (!ctx) {
-	    ERR_MSG_F("Failed to create the context: %s\n", modbus_strerror(errno));
+	    ERR_MSG_F("Failed to create MODBUS RTU context: %s", modbus_strerror(errno));
 	    return false;
 	}
 
 	//modbus_set_debug(ctx, TRUE);
 
 	if (modbus_connect(ctx) == -1) {
-	    ERR_MSG_F("Unable to connect: %s\n", modbus_strerror(errno));
+	    ERR_MSG_F("Unable connect to device %s: %s", device, modbus_strerror(errno));
 	    return false;
 	}
 
