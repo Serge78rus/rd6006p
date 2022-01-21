@@ -116,7 +116,9 @@ void options_print(void)
 			"verbose:  %s\n"
 			"device:   %s\n"
 			"baudrate: %lu\n"
-			"slave:    %u\n",
+			"slave:    %u\n"
+
+			"\n",
 
 			options.help_flag ? "true" : "false",
 			options.version_flag ? "true" : "false",
