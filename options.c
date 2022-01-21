@@ -15,6 +15,9 @@
 #include "errmsg.h"
 #include "def.h"
 
+//const for long options
+#define VERBOSE		1
+
 /*
  * local variables
  */
@@ -22,7 +25,7 @@
 static struct option long_options[] = {
 	    {.name = "help", 			.has_arg = no_argument, 		.flag = 0, .val = 'h'},
 	    {.name = "version",			.has_arg = no_argument, 		.flag = 0, .val = 'V'},
-	    {.name = "verbose", 		.has_arg = no_argument, 		.flag = 0, .val = 'v'},
+	    {.name = "verbose", 		.has_arg = no_argument, 		.flag = 0, .val = VERBOSE},
 	    {.name = "device", 			.has_arg = required_argument,	.flag = 0, .val = 'd'},
 	    {.name = "baudrate",		.has_arg = required_argument,	.flag = 0, .val = 'b'},
 	    {.name = "slave",		    .has_arg = required_argument,	.flag = 0, .val = 's'},
@@ -46,9 +49,7 @@ static Options options = {
 Options* options_parse(int argc, char **argv)
 {
 	for (;;) {
-		//int option_index = -1;
-
-		int c = getopt_long(argc, argv, "hVvd:b:s:", long_options, 0/*&option_index*/);
+		int c = getopt_long(argc, argv, "hVd:b:s:", long_options, 0/*&option_index*/);
 
 		if (c == -1) {
 			break;
@@ -65,7 +66,7 @@ Options* options_parse(int argc, char **argv)
 		case 'V':
 			options.version_flag = true;
 			break;
-		case 'v':
+		case VERBOSE:
 			options.verbose_flag = true;
 			break;
 		case 'd':
@@ -115,7 +116,7 @@ void options_print(void)
 			"verbose:  %s\n"
 			"device:   %s\n"
 			"baudrate: %lu\n"
-			"slave: %u\n",
+			"slave:    %u\n",
 
 			options.help_flag ? "true" : "false",
 			options.version_flag ? "true" : "false",
@@ -135,7 +136,7 @@ void options_help(void)
 			"\n"
 			"-h, --help                       show this help screen and exit\n"
 			"-V, --version                    show version information and exit\n"
-			"-v, --verbose          optional  show verbose information\n"
+			"    --verbose          optional  show verbose information\n"
 			"                                 (default: false)\n"
 			"-d, --device=NAME      required  serial communication device\n"
 			"-b, --baudrate=VALUE   optional  communication baudrate\n"
