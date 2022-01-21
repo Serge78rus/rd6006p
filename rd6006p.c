@@ -21,9 +21,9 @@ static modbus_t *ctx = 0;
 static uint16_t reg[NUM_REG];
 static rd6006p_Status status;
 
-bool rd6006p_open(const char *device, int slave_addr)
+bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave_addr)
 {
-	ctx = modbus_new_rtu(device, 115200, 'N', 8, 1);
+	ctx = modbus_new_rtu(device, baudrate, 'N', 8, 1);
 	if (!ctx) {
 	    ERR_MSG_F("Failed to create MODBUS RTU context: %s", modbus_strerror(errno));
 	    return false;

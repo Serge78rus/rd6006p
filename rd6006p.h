@@ -27,7 +27,7 @@ typedef struct {
 	double				current;
 } rd6006p_Status;
 
-bool rd6006p_open(const char *device, int slave_addr);
+bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave_addr);
 void rd6006p_close(void);
 rd6006p_Status* rd6006p_get_status(void);
 

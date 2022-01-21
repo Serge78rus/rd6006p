@@ -1,6 +1,6 @@
 TARGET = rd6006p
 PREFIX = /usr/local/bin
-SRCS = main.c rd6006p.c
+SRCS = main.c rd6006p.c options.c
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -O2 -Wall -lmodbus
 

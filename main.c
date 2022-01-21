@@ -10,12 +10,38 @@
 
 #include "rd6006p.h"
 #include "errmsg.h"
+#include "options.h"
 
 int main(int argc, char **argv)
 {
 	//printf("begin\n");
 
-	if (!rd6006p_open("/dev/ttyUSB0", 1)) { //TODO device & addr from options
+	Options *options = options_parse(argc, argv);
+	if (!options) {
+		ERR_MSG("Parsing command line error");
+		options_help();
+		return 1;
+	}
+	if (options->help_flag) {
+		options_help();
+		return 0;
+	}
+	if (options->version_flag) {
+		options_version();
+		return 0;
+	}
+	if (options->verbose_flag) {
+		options_print();
+	}
+
+	// check options
+	if (!options->serial_device) {
+		ERR_MSG("No communication device specified");
+		options_help();
+		return 1;
+	}
+
+	if (!rd6006p_open(options->serial_device, options->baudrate, options->slave)) {
 		ERR_MSG("rd6006_open()");
 		rd6006p_close();
 		return 1;
