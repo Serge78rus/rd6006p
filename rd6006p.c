@@ -15,6 +15,7 @@
 
 //private functions
 static inline bool read(int first_reg, int num_reg);
+static inline bool write(int first_reg, int num_reg);
 
 //private variables
 static modbus_t *ctx = 0;
@@ -68,6 +69,31 @@ rd6006p_Status* rd6006p_get_status(void)
 	return &status;
 }
 
+bool rd6006p_set_voltage(double voltage)
+{
+	reg[0] = (uint16_t)(voltage * 1000.0);
+	return write(8, 1);
+}
+
+bool rd6006p_set_current(double current)
+{
+	reg[0] = (uint16_t)(current * 10000.0);
+	return write(9, 1);
+}
+
+bool rd6006p_set_voltage_current(double voltage, double current)
+{
+	reg[0] = (uint16_t)(voltage * 1000.0);
+	reg[1] = (uint16_t)(current * 10000.0);
+	return write(8, 2);
+}
+
+bool rd6006p_set_output(bool on)
+{
+	reg[0] = on ? 1 : 0;
+	return write(18, 1);
+}
+
 /*
  * private functions
  */
@@ -77,6 +103,16 @@ static inline bool read(int first_reg, int num_reg)
 	int num = modbus_read_registers(ctx, first_reg, num_reg, reg);
 	if (num != num_reg) { // invalid number of read registers
 	    ERR_MSG_F("Failed modbus_read_registers(): %s", modbus_strerror(errno));
+		return false;
+	}
+	return true;
+}
+
+static inline bool write(int first_reg, int num_reg)
+{
+	int num = modbus_write_registers(ctx, first_reg, num_reg, reg);
+	if (num != num_reg) { // invalid number of write registers
+	    ERR_MSG_F("Failed modbus_write_registers(): %s", modbus_strerror(errno));
 		return false;
 	}
 	return true;

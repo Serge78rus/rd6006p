@@ -47,6 +47,36 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	//set voltage and current
+	if (options->voltage_set_flag && !options->current_set_flag) {
+		if (!rd6006p_set_voltage(options->voltage_set_value)) {
+			ERR_MSG("rd6006p_set_voltage()");
+			rd6006p_close();
+			return 1;
+		}
+	} else if (!options->voltage_set_flag && options->current_set_flag) {
+		if (!rd6006p_set_current(options->current_set_value)) {
+			ERR_MSG("rd6006p_set_current()");
+			rd6006p_close();
+			return 1;
+		}
+	} else if (options->voltage_set_flag && options->current_set_flag) {
+		if (!rd6006p_set_voltage_current(options->voltage_set_value, options->current_set_value)) {
+			ERR_MSG("rd6006p_set_voltage_current()");
+			rd6006p_close();
+			return 1;
+		}
+	}
+
+	//set output on/off
+	if (options->output_on_off_flag) {
+		if (!rd6006p_set_output(options->output_on_off_value)) {
+			ERR_MSG("rd6006p_set_output()");
+			rd6006p_close();
+			return 1;
+		}
+	}
+
 	//
 	//
 	//

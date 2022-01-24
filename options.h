@@ -21,6 +21,12 @@ typedef struct {
 	char *serial_device;
 	unsigned long baudrate;
 	unsigned int slave;
+	bool voltage_set_flag;
+	double voltage_set_value;
+	bool current_set_flag;
+	double current_set_value;
+	bool output_on_off_flag;
+	bool output_on_off_value;
 } Options;
 
 //public functions

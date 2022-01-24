@@ -29,6 +29,9 @@ static struct option long_options[] = {
 	    {.name = "device", 			.has_arg = required_argument,	.flag = 0, .val = 'd'},
 	    {.name = "baudrate",		.has_arg = required_argument,	.flag = 0, .val = 'b'},
 	    {.name = "slave",		    .has_arg = required_argument,	.flag = 0, .val = 's'},
+	    {.name = "voltage",		    .has_arg = required_argument,	.flag = 0, .val = 'v'},
+	    {.name = "current",		    .has_arg = required_argument,	.flag = 0, .val = 'c'},
+	    {.name = "output",		    .has_arg = required_argument,	.flag = 0, .val = 'o'},
 
 		{0, 0, 0, 0}
 };
@@ -39,7 +42,13 @@ static Options options = {
 		.verbose_flag = false,
 		.serial_device = 0,
 		.baudrate = 115200,
-		.slave = 1
+		.slave = 1,
+		.voltage_set_flag = false,
+		.voltage_set_value = 0,
+		.current_set_flag = false,
+		.current_set_value = 0,
+		.output_on_off_flag = false,
+		.output_on_off_value = false
 };
 
 /*
@@ -49,7 +58,7 @@ static Options options = {
 Options* options_parse(int argc, char **argv)
 {
 	for (;;) {
-		int c = getopt_long(argc, argv, "hVd:b:s:", long_options, 0/*&option_index*/);
+		int c = getopt_long(argc, argv, "hVd:b:s:v:c:o:", long_options, 0/*&option_index*/);
 
 		if (c == -1) {
 			break;
@@ -90,6 +99,38 @@ Options* options_parse(int argc, char **argv)
 			}
 			break;
 		}
+		case 'v': {
+			char *end_ptr = optarg;
+			options.voltage_set_value = strtod(optarg, &end_ptr);
+			if (end_ptr == optarg || *end_ptr) {
+				ERR_MSG_F("Invalid floating point value \"%s\" in command line", optarg);
+				return 0;
+			}
+			options.voltage_set_flag = true;
+			break;
+		}
+		case 'c': {
+			char *end_ptr = optarg;
+			options.current_set_value = strtod(optarg, &end_ptr);
+			if (end_ptr == optarg || *end_ptr) {
+				ERR_MSG_F("Invalid floating point value \"%s\" in command line", optarg);
+				return 0;
+			}
+			options.current_set_flag = true;
+			break;
+		}
+		case 'o': {
+			if (!strcmp("off", optarg) || !strcmp("0", optarg)) {
+				options.output_on_off_value = false;
+			} else if (!strcmp("on", optarg) || !strcmp("1", optarg)) {
+				options.output_on_off_value = true;
+			} else {
+				ERR_MSG_F("Invalid output on/off value \"%s\" in command line", optarg);
+				return 0;
+			}
+			options.output_on_off_flag = true;
+			break;
+		}
 
 		default:
 			ERR_MSG("Unknown getopt_long() error");
@@ -111,15 +152,12 @@ Options* options_parse(int argc, char **argv)
 void options_print(void)
 {
 	printf("Options:\n"
-			"help:     %s\n"
-			"version:  %s\n"
-			"verbose:  %s\n"
-			"device:   %s\n"
-			"baudrate: %lu\n"
-			"slave:    %u\n"
-
-			"\n",
-
+			"help:          %s\n"
+			"version:       %s\n"
+			"verbose:       %s\n"
+			"device:        %s\n"
+			"baudrate:      %lu\n"
+			"slave:         %u\n",
 			options.help_flag ? "true" : "false",
 			options.version_flag ? "true" : "false",
 			options.verbose_flag ? "true" : "false",
@@ -127,6 +165,22 @@ void options_print(void)
 			options.baudrate,
 			options.slave
 	);
+
+	if (options.voltage_set_flag) {
+		printf("voltage set:   %.3f\n", options.voltage_set_value);
+	} else {
+		printf("voltage set:   no\n");
+	}
+
+	if (options.current_set_flag) {
+		printf("current set:   %.4f\n", options.current_set_value);
+	} else {
+		printf("current set:   no\n");
+	}
+
+	printf("output on/off: %s\n", options.output_on_off_flag ? (options.output_on_off_value ? "on" : "off") : "no");
+
+	printf("\n");
 }
 
 void options_help(void)

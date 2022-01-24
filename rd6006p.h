@@ -30,5 +30,9 @@ typedef struct {
 bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave_addr);
 void rd6006p_close(void);
 rd6006p_Status* rd6006p_get_status(void);
+bool rd6006p_set_voltage(double voltage);
+bool rd6006p_set_current(double current);
+bool rd6006p_set_voltage_current(double voltage, double current);
+bool rd6006p_set_output(bool on);
 
 #endif /* RD6006P_H_ */
