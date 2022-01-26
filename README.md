@@ -2,4 +2,15 @@
 
 Command line utility for RD6006P power source
 
-Project in early development state
+## dependency
+
+libmodbus
+libmodbus-dev (development only)
+
+## building and installation
+
+```bash
+make
+sudo make install 
+```
+Last command install application binary file to /usr/local/bin. 
