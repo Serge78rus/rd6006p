@@ -27,6 +27,8 @@ typedef struct {
 	double current_set_value;
 	bool output_on_off_flag;
 	bool output_on_off_value;
+	double cycle_s;
+	unsigned int cycles_number;
 } Options;
 
 //public functions

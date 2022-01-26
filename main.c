@@ -7,14 +7,28 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
+//#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include "rd6006p.h"
 #include "errmsg.h"
 #include "options.h"
 
+//private variables
+static volatile bool keep_running = true;
+
+//private functions
+static void int_handler(int dummy);
+static inline void show_seconds(struct timeval *time);
+//static inline void show_time(const char *format, bool milliseconds);
+
 int main(int argc, char **argv)
 {
 	//printf("begin\n");
+
+	signal(SIGINT, int_handler);
 
 	Options *options = options_parse(argc, argv);
 	if (!options) {
@@ -77,26 +91,83 @@ int main(int argc, char **argv)
 		}
 	}
 
-	//
-	//
-	//
+	//show status cycle
+	unsigned int cycle_us = options->cycle_s * 1000000;
+	int cycle_count = 0;
+	while (keep_running) {
 
+		static struct timeval start_time;
+	    gettimeofday(&start_time , NULL);
 
-	rd6006p_Status *status = rd6006p_get_status();
-	if (!status) {
-		ERR_MSG("rd6006p_get_status()");
-		rd6006p_close();
-		return 1;
+	    //if (options->seconds_flag) {
+		    show_seconds(&start_time);
+	    //}
+
+	    //////
+		rd6006p_Status *status = rd6006p_get_status();
+		if (status) {
+			printf("%s %.3f %.4f\n",
+					status->output ? (status->mode ? "CC" : "CV") : "OFF",
+					status->voltage,
+					status->current
+			);
+		} else {
+			ERR_MSG("rd6006p_get_status()");
+		}
+		////////////////
+
+		if (options->cycles_number) {
+			if (++cycle_count == options->cycles_number) {
+				break;
+			}
+		}
+
+	    static struct timeval end_time;
+	    gettimeofday(&end_time , NULL);
+
+	    unsigned int cycle_corrections = (end_time.tv_sec - start_time.tv_sec) * 1000000;
+	    cycle_corrections = (end_time.tv_usec + cycle_corrections) - start_time.tv_usec;
+	    if (cycle_us > cycle_corrections) {
+			usleep(cycle_us - cycle_corrections);
+	    }
+
 	}
-	printf("M:%s O:%s V:%.3fV C:%.4fA\n",
-			status->mode ? "CC" : "CV",
-			status->output ? "ON" : "OFF",
-			status->voltage,
-			status->current
-	);
-
-	//printf("end\n");
 
 	rd6006p_close();
 	return 0;
 }
+
+/*
+ * private functions
+ */
+
+static void int_handler(int dummy)
+{
+    keep_running = false;
+}
+
+static inline void show_seconds(struct timeval *time)
+{
+	static bool first_cycle = true;
+    static struct timeval now_time;
+    static struct timeval start_time;
+
+    now_time.tv_sec = time->tv_sec;
+    now_time.tv_usec = time->tv_usec;
+
+    if (first_cycle) {
+    	first_cycle = false;
+        start_time.tv_sec = time->tv_sec;
+        start_time.tv_usec = time->tv_usec;
+    }
+
+    if (now_time.tv_usec < start_time.tv_usec) {
+    	now_time.tv_sec -= 1;
+    	now_time.tv_usec += 1000000;
+    }
+	fprintf(stdout, "%u.%03u ", (unsigned int)(now_time.tv_sec - start_time.tv_sec),
+			(unsigned int)(now_time.tv_usec - start_time.tv_usec) / 1000);
+}
+
+
+

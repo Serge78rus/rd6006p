@@ -32,6 +32,8 @@ static struct option long_options[] = {
 	    {.name = "voltage",		    .has_arg = required_argument,	.flag = 0, .val = 'v'},
 	    {.name = "current",		    .has_arg = required_argument,	.flag = 0, .val = 'c'},
 	    {.name = "output",		    .has_arg = required_argument,	.flag = 0, .val = 'o'},
+	    {.name = "cycle", 			.has_arg = required_argument,	.flag = 0, .val = 'C'},
+	    {.name = "number", 			.has_arg = required_argument,	.flag = 0, .val = 'n'},
 
 		{0, 0, 0, 0}
 };
@@ -48,7 +50,9 @@ static Options options = {
 		.current_set_flag = false,
 		.current_set_value = 0,
 		.output_on_off_flag = false,
-		.output_on_off_value = false
+		.output_on_off_value = false,
+		.cycle_s = 1.0,
+		.cycles_number = 0
 };
 
 /*
@@ -58,7 +62,7 @@ static Options options = {
 Options* options_parse(int argc, char **argv)
 {
 	for (;;) {
-		int c = getopt_long(argc, argv, "hVd:b:s:v:c:o:", long_options, 0/*&option_index*/);
+		int c = getopt_long(argc, argv, "hVd:b:s:v:c:o:C:n:", long_options, 0/*&option_index*/);
 
 		if (c == -1) {
 			break;
@@ -129,6 +133,24 @@ Options* options_parse(int argc, char **argv)
 				return 0;
 			}
 			options.output_on_off_flag = true;
+			break;
+		}
+		case 'C': {
+			char *end_ptr = optarg;
+			options.cycle_s = strtod(optarg, &end_ptr);
+			if (end_ptr == optarg || *end_ptr) {
+				ERR_MSG_F("Invalid floating point value \"%s\" in command line", optarg);
+				return 0;
+			}
+			break;
+		}
+		case 'n': {
+			char *end_ptr = optarg;
+			options.cycles_number = strtoul(optarg, &end_ptr, 10);
+			if (end_ptr == optarg || *end_ptr) {
+				ERR_MSG_F("Invalid unsigned integer value \"%s\" in command line", optarg);
+				return 0;
+			}
 			break;
 		}
 

@@ -12,6 +12,7 @@
 #include "errmsg.h"
 
 #define NUM_REG 100 /*TODO set real value*/
+#define MODBUS_ATTEMPTS 3
 
 //private functions
 static inline bool read(int first_reg, int num_reg);
@@ -39,8 +40,24 @@ bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave
 
 	modbus_set_slave(ctx, slave_addr); //TODO check result
 
+	////////////////////////
+	/*
+	uint32_t rto_sec;
+	uint32_t rto_usec;
+	uint32_t bto_sec;
+	uint32_t bto_usec;
+	modbus_get_response_timeout(ctx, &rto_sec, &rto_usec);
+	modbus_get_byte_timeout(ctx, &bto_sec, &bto_usec);
+	printf("rto_sec: %u rto_usec: %u bto_sec: %u bto_usec: %u\n", rto_sec, rto_usec, bto_sec, bto_usec);
+	modbus_set_response_timeout(ctx, 1, 0);
+	modbus_get_response_timeout(ctx, &rto_sec, &rto_usec);
+	printf("rto_sec: %u rto_usec: %u\n", rto_sec, rto_usec);
+	*/
+
+	//modbus_set_response_timeout(ctx, 1, 0);
+	//modbus_set_response_timeout(ctx, 0, 400000);
+	//modbus_set_byte_timeout(ctx, 0, 10000);
 	//TODO
-	//modbus_set_response_timeout(); //TODO
 	//modbus_set_byte_timeout(); //TODO
 
 	return true;
@@ -100,22 +117,30 @@ bool rd6006p_set_output(bool on)
 
 static inline bool read(int first_reg, int num_reg)
 {
-	int num = modbus_read_registers(ctx, first_reg, num_reg, reg);
-	if (num != num_reg) { // invalid number of read registers
-	    ERR_MSG_F("Failed modbus_read_registers(): %s", modbus_strerror(errno));
-		return false;
+	for (int i = 0; i < MODBUS_ATTEMPTS; ++i) {
+		int num = modbus_read_registers(ctx, first_reg, num_reg, reg);
+		if (num == num_reg) {
+			return true;
+		} else { // invalid number of read registers
+		    ERR_MSG_F("modbus_read_registers() returned %i expected %i attempt %i : %s",
+		    		num, num_reg, i + 1, modbus_strerror(errno));
+		}
 	}
-	return true;
+	return false;
 }
 
 static inline bool write(int first_reg, int num_reg)
 {
-	int num = modbus_write_registers(ctx, first_reg, num_reg, reg);
-	if (num != num_reg) { // invalid number of write registers
-	    ERR_MSG_F("Failed modbus_write_registers(): %s", modbus_strerror(errno));
-		return false;
+	for (int i = 0; i < MODBUS_ATTEMPTS; ++i) {
+		int num = modbus_write_registers(ctx, first_reg, num_reg, reg);
+		if (num == num_reg) {
+			return true;
+		} else { // invalid number of write registers
+		    ERR_MSG_F("modbus_write_registers() returned %i expected %i attempt %i : %s",
+		    		num, num_reg, i + 1, modbus_strerror(errno));
+		}
 	}
-	return true;
+	return false;
 }
 
 
