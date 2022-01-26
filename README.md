@@ -7,6 +7,7 @@ Project in development stage
 ## dependency
 
 libmodbus
+
 libmodbus-dev (development only)
 
 ## building and installation
