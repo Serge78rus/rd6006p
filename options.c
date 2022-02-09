@@ -200,7 +200,13 @@ void options_print(void)
 		printf("current set:   no\n");
 	}
 
-	printf("output on/off: %s\n", options.output_on_off_flag ? (options.output_on_off_value ? "on" : "off") : "no");
+	printf("output on/off: %s\n"
+			"cycle:         %f s\n"
+			"cycles_number: %i\n",
+			options.output_on_off_flag ? (options.output_on_off_value ? "on" : "off") : "no",
+			options.cycle_s,
+			options.cycles_number
+	);
 
 	printf("\n");
 }
@@ -221,6 +227,17 @@ void options_help(void)
 			"                                 (default: 115200)\n"
 			"-s, --slave=VALUE      optional  slave address\n"
 			"                                 (default: 1)\n"
+			"-v, --voltage=VALUE    optional  set output voltage value\n"
+			"                                 (default: no set)\n"
+			"-c, --current=VALUE    optional  set output current value\n"
+			"                                 (default: no set)\n"
+			"-o, --output=STATE     optional  set output state\n"
+			"                                 valid STATE: 0, off, 1, on\n"
+			"                                 (default: no set)\n"
+			"-C, --cycle=VALUE      optional  display status cycle in seconds\n"
+			"                                 (default: 1.0)\n"
+			"-n, --number=VALUE     optional  display status cycles count\n"
+			"                                 (default: 0 - no limit)\n"
 			"\n"
 	);
 }
