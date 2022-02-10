@@ -2,8 +2,6 @@
 
 Command line utility for RD6006P power source
 
-Project in development stage
-
 ## dependency
 
 libmodbus
