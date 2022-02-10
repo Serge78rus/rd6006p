@@ -29,6 +29,9 @@ typedef struct {
 	bool output_on_off_value;
 	double cycle_s;
 	unsigned int cycles_number;
+	bool seconds_flag;
+	bool time_flag;
+	char *date_format;
 } Options;
 
 //public functions

@@ -34,6 +34,9 @@ static struct option long_options[] = {
 	    {.name = "output",		    .has_arg = required_argument,	.flag = 0, .val = 'o'},
 	    {.name = "cycle", 			.has_arg = required_argument,	.flag = 0, .val = 'C'},
 	    {.name = "number", 			.has_arg = required_argument,	.flag = 0, .val = 'n'},
+	    {.name = "seconds",			.has_arg = no_argument,			.flag = 0, .val = 'S'},
+	    {.name = "time",			.has_arg = no_argument,			.flag = 0, .val = 't'},
+	    {.name = "date",			.has_arg = required_argument,	.flag = 0, .val = 'D'},
 
 		{0, 0, 0, 0}
 };
@@ -52,7 +55,10 @@ static Options options = {
 		.output_on_off_flag = false,
 		.output_on_off_value = false,
 		.cycle_s = 1.0,
-		.cycles_number = 0
+		.cycles_number = 0,
+		.seconds_flag = false,
+		.time_flag = false,
+		.date_format = 0
 };
 
 /*
@@ -62,7 +68,7 @@ static Options options = {
 Options* options_parse(int argc, char **argv)
 {
 	for (;;) {
-		int c = getopt_long(argc, argv, "hVd:b:s:v:c:o:C:n:", long_options, 0/*&option_index*/);
+		int c = getopt_long(argc, argv, "hVd:b:s:v:c:o:C:n:StD:", long_options, 0/*&option_index*/);
 
 		if (c == -1) {
 			break;
@@ -153,6 +159,15 @@ Options* options_parse(int argc, char **argv)
 			}
 			break;
 		}
+		case 'S':
+			options.seconds_flag = true;
+			break;
+		case 't':
+			options.time_flag = true;
+			break;
+		case 'D':
+			options.date_format = optarg;
+			break;
 
 		default:
 			ERR_MSG("Unknown getopt_long() error");
@@ -202,13 +217,18 @@ void options_print(void)
 
 	printf("output on/off: %s\n"
 			"cycle:         %f s\n"
-			"cycles_number: %i\n",
+			"cycles_number: %i\n"
+			"seconds:       %s\n"
+			"time:          %s\n"
+			"date:          %s\n"
+			"\n",
 			options.output_on_off_flag ? (options.output_on_off_value ? "on" : "off") : "no",
 			options.cycle_s,
-			options.cycles_number
+			options.cycles_number,
+			options.seconds_flag ? "true" : "false",
+			options.time_flag ? "true" : "false",
+			options.date_format ? options.date_format : ""
 	);
-
-	printf("\n");
 }
 
 void options_help(void)
@@ -238,6 +258,14 @@ void options_help(void)
 			"                                 (default: 1.0)\n"
 			"-n, --number=VALUE     optional  display status cycles count\n"
 			"                                 (default: 0 - no limit)\n"
+			"-S, --seconds          optional  show how many seconds have passed since the start\n"
+			"                                 (default: false)\n"
+			"-t, --time             optional  show status time\n"
+			"                                 (default: false)\n"
+			"-D, --date=FORMAT      optional  format specifier for date part of status time,\n"
+			"                                 for example \"%%d.%%m.%%Y\" produce \"DD.MM.YYYY\" string\n"
+			"                                 (use \"man strftime\" for more information)\n"
+			"                                 (default: empty string - not show date)\n"
 			"\n"
 	);
 }

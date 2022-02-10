@@ -8,9 +8,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
-//#include <time.h>
+#include <time.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "rd6006p.h"
 #include "errmsg.h"
@@ -22,7 +23,7 @@ static volatile bool keep_running = true;
 //private functions
 static void int_handler(int dummy);
 static inline void show_seconds(struct timeval *time);
-//static inline void show_time(const char *format, bool milliseconds);
+static inline void show_time(struct timeval *time, const char *format, bool milliseconds);
 
 int main(int argc, char **argv)
 {
@@ -91,19 +92,33 @@ int main(int argc, char **argv)
 		}
 	}
 
-	//show status cycle
+	//prepare status cycle parameters
 	unsigned int cycle_us = options->cycle_s * 1000000;
+	char time_format[80] = {0}; //TODO real size
+	if (options->time_flag) {
+		if (options->date_format) {
+			strcpy(time_format, options->date_format);
+			strcat(time_format, " ");
+		}
+		strcat(time_format, "%T");
+	}
+
+	//show status cycle
 	int cycle_count = 0;
 	while (keep_running) {
 
 		static struct timeval start_time;
 	    gettimeofday(&start_time , NULL);
 
-	    //if (options->seconds_flag) {
+	    //show status time
+	    if (options->seconds_flag) {
 		    show_seconds(&start_time);
-	    //}
+	    }
+		if (options->time_flag) {
+			show_time(&start_time, time_format, true); //TODO milliseconds???
+		}
 
-	    //////
+	    //show status
 		rd6006p_Status *status = rd6006p_get_status();
 		if (status) {
 			printf("%s %.3f %.4f\n",
@@ -114,7 +129,6 @@ int main(int argc, char **argv)
 		} else {
 			ERR_MSG("rd6006p_get_status()");
 		}
-		////////////////
 
 		if (options->cycles_number) {
 			if (++cycle_count == options->cycles_number) {
@@ -169,5 +183,17 @@ static inline void show_seconds(struct timeval *time)
 			(unsigned int)(now_time.tv_usec - start_time.tv_usec) / 1000);
 }
 
+static inline void show_time(struct timeval *time, const char *format, bool milliseconds)
+{
+	static struct tm now_localtime;
+	static char time_buff[80]; //TODO real size
+
+	localtime_r(&(time->tv_sec), &now_localtime);
+	size_t len = strftime(time_buff, sizeof(time_buff), format, &now_localtime);
+	if (milliseconds) {
+		snprintf(time_buff + len, sizeof(time_buff) - len, ".%03u", (unsigned)time->tv_usec / 1000);
+	}
+	fprintf(stdout, "%s ", time_buff);
+}
 
 
