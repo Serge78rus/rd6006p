@@ -22,6 +22,7 @@ static inline bool write(int first_reg, int num_reg);
 static modbus_t *ctx = 0;
 static uint16_t reg[NUM_REG];
 static rd6006p_Status status;
+static rd6006p_Info info;
 
 bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave_addr)
 {
@@ -111,6 +112,30 @@ bool rd6006p_set_output(bool on)
 	return write(18, 1);
 }
 
+rd6006p_Info* rd6006p_get_info(void)
+{
+	if (!read(0, 3)) {
+		ERR_MSG("Failed read()");
+		return 0;
+	}
+
+	//printf("reg[0]: %u", reg[0]);
+	switch ((rd6006p_Type)reg[0]) {
+	case rd6006p_TYPE_RD6006P:
+		info.type = (rd6006p_Type)reg[0];
+		break;
+	default:
+		info.type = rd6006p_TYPE_UNKNOWN;
+	}
+	//printf("reg[1]: %u", reg[1]);
+	//printf("reg[2]: %u", reg[2]);
+	info.serial = ((unsigned)reg[1] << 16) | (unsigned)reg[2];
+
+	//TODO
+
+	return &info;
+}
+
 /*
  * private functions
  */
@@ -142,6 +167,5 @@ static inline bool write(int first_reg, int num_reg)
 	}
 	return false;
 }
-
 
 

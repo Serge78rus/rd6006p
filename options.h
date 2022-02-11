@@ -32,6 +32,7 @@ typedef struct {
 	bool seconds_flag;
 	bool time_flag;
 	char *date_format;
+	bool info_flag;
 } Options;
 
 //public functions

@@ -92,6 +92,32 @@ int main(int argc, char **argv)
 		}
 	}
 
+	//show device information
+	if (options->info_flag) {
+		rd6006p_Info *info = rd6006p_get_info();
+		if (info) {
+			char *type_str = "?";
+			switch (info->type) {
+			case rd6006p_TYPE_RD6006P:
+				type_str = "RD6006P";
+				break;
+			default:
+				type_str = "UNKNOWN";
+			}
+
+			printf("Device information\n"
+					"\tType:   %s (%u)\n"
+					"\tSerial: %010lu\n"
+					"\n",
+					type_str, (unsigned int)info->type,
+					(unsigned long)info->serial
+			);
+		} else {
+			ERR_MSG("rd6006p_get_info()");
+		}
+
+	}
+
 	//prepare status cycle parameters
 	unsigned int cycle_us = options->cycle_s * 1000000;
 	char time_format[80] = {0}; //TODO real size

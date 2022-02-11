@@ -37,6 +37,7 @@ static struct option long_options[] = {
 	    {.name = "seconds",			.has_arg = no_argument,			.flag = 0, .val = 'S'},
 	    {.name = "time",			.has_arg = no_argument,			.flag = 0, .val = 't'},
 	    {.name = "date",			.has_arg = required_argument,	.flag = 0, .val = 'D'},
+	    {.name = "info",			.has_arg = no_argument,			.flag = 0, .val = 'i'},
 
 		{0, 0, 0, 0}
 };
@@ -58,7 +59,8 @@ static Options options = {
 		.cycles_number = 0,
 		.seconds_flag = false,
 		.time_flag = false,
-		.date_format = 0
+		.date_format = 0,
+		.info_flag = false
 };
 
 /*
@@ -68,7 +70,7 @@ static Options options = {
 Options* options_parse(int argc, char **argv)
 {
 	for (;;) {
-		int c = getopt_long(argc, argv, "hVd:b:s:v:c:o:C:n:StD:", long_options, 0/*&option_index*/);
+		int c = getopt_long(argc, argv, "hVd:b:s:v:c:o:C:n:StD:i", long_options, 0/*&option_index*/);
 
 		if (c == -1) {
 			break;
@@ -168,6 +170,9 @@ Options* options_parse(int argc, char **argv)
 		case 'D':
 			options.date_format = optarg;
 			break;
+		case 'i':
+			options.info_flag = true;
+			break;
 
 		default:
 			ERR_MSG("Unknown getopt_long() error");
@@ -221,13 +226,15 @@ void options_print(void)
 			"seconds:       %s\n"
 			"time:          %s\n"
 			"date:          %s\n"
+			"info:          %s\n"
 			"\n",
 			options.output_on_off_flag ? (options.output_on_off_value ? "on" : "off") : "no",
 			options.cycle_s,
 			options.cycles_number,
 			options.seconds_flag ? "true" : "false",
 			options.time_flag ? "true" : "false",
-			options.date_format ? options.date_format : ""
+			options.date_format ? options.date_format : "",
+			options.info_flag ? "true" : "false"
 	);
 }
 
@@ -266,6 +273,8 @@ void options_help(void)
 			"                                 for example \"%%d.%%m.%%Y\" produce \"DD.MM.YYYY\" string\n"
 			"                                 (use \"man strftime\" for more information)\n"
 			"                                 (default: empty string - not show date)\n"
+			"-i, --info             optional  show device information\n"
+			"                                 (default: false)\n"
 			"\n"
 	);
 }
