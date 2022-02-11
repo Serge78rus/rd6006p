@@ -18,7 +18,6 @@ Last command install application binary file to /usr/local/bin.
 
 ## Usage
 
-```bash
 Usage: rd6006p options
 
 options:
@@ -53,4 +52,3 @@ options:
                                  (default: empty string - not show date)
 -i, --info             optional  show device information
                                  (default: false)
-```
