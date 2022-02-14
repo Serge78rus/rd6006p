@@ -39,7 +39,10 @@ bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave
 	    return false;
 	}
 
-	modbus_set_slave(ctx, slave_addr); //TODO check result
+	if (modbus_set_slave(ctx, slave_addr) == -1) {
+	    ERR_MSG_F("Failed set slave %u: %s", slave_addr, modbus_strerror(errno));
+	    return false;
+	}
 
 	////////////////////////
 	/*
