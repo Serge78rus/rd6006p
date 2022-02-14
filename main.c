@@ -24,6 +24,8 @@ static volatile bool keep_running = true;
 static void int_handler(int dummy);
 static inline void show_seconds(struct timeval *time);
 static inline void show_time(struct timeval *time, const char *format, bool milliseconds);
+static inline bool show_info(void);
+static inline bool show_status(void);
 
 int main(int argc, char **argv)
 {
@@ -94,28 +96,9 @@ int main(int argc, char **argv)
 
 	//show device information
 	if (options->info_flag) {
-		rd6006p_Info *info = rd6006p_get_info();
-		if (info) {
-			char *type_str = "?";
-			switch (info->type) {
-			case rd6006p_TYPE_RD6006P:
-				type_str = "RD6006P";
-				break;
-			default:
-				type_str = "UNKNOWN";
-			}
-
-			printf("Device information\n"
-					"\tType:   %s (%u)\n"
-					"\tSerial: %010lu\n"
-					"\n",
-					type_str, (unsigned int)info->type,
-					(unsigned long)info->serial
-			);
-		} else {
-			ERR_MSG("rd6006p_get_info()");
+		if (!show_info()) {
+			ERR_MSG("show_info()");
 		}
-
 	}
 
 	//prepare status cycle parameters
@@ -144,19 +127,12 @@ int main(int argc, char **argv)
 			show_time(&start_time, time_format, true); //TODO milliseconds???
 		}
 
-	    //show status
-		rd6006p_Status *status = rd6006p_get_status();
-		if (status) {
-			printf("%s %.3f %.4f\n",
-					status->output ? (status->mode ? "CC" : "CV") : "OFF",
-					status->voltage,
-					status->current
-			);
-		} else {
-			ERR_MSG("rd6006p_get_status()");
-		}
+		//show device status
+	    if (!show_status()) {
+			ERR_MSG("show_status()");
+	    }
 
-		if (options->cycles_number) {
+	    if (options->cycles_number) {
 			if (++cycle_count == options->cycles_number) {
 				break;
 			}
@@ -222,4 +198,48 @@ static inline void show_time(struct timeval *time, const char *format, bool mill
 	fprintf(stdout, "%s ", time_buff);
 }
 
+static inline bool show_info(void)
+{
+	rd6006p_Info *info = rd6006p_get_info();
+	if (!info) {
+		ERR_MSG("rd6006p_get_info()");
+		return false;
+	}
+
+	char *type_str = "?";
+	switch (info->type) {
+	case rd6006p_TYPE_RD6006P:
+		type_str = "RD6006P";
+		break;
+	default:
+		type_str = "UNKNOWN";
+	}
+
+	printf("Device information\n"
+			"\tType:   %s (%u)\n"
+			"\tSerial: %010lu\n"
+			"\n",
+			type_str, (unsigned int)info->type,
+			(unsigned long)info->serial
+	);
+
+	return true;
+}
+
+static inline bool show_status(void)
+{
+	rd6006p_Status *status = rd6006p_get_status();
+	if (!status) {
+		ERR_MSG("rd6006p_get_status()");
+		return false;
+	}
+
+	printf("%s %.3f %.4f\n",
+			status->output ? (status->mode ? "CC" : "CV") : "OFF",
+			status->voltage,
+			status->current
+	);
+
+	return true;
+}
 
