@@ -117,7 +117,7 @@ bool rd6006p_set_output(bool on)
 
 rd6006p_Info* rd6006p_get_info(void)
 {
-	if (!read(0, 3)) {
+	if (!read(0, 6)) {
 		ERR_MSG("Failed read()");
 		return 0;
 	}
@@ -130,9 +130,18 @@ rd6006p_Info* rd6006p_get_info(void)
 	default:
 		info.type = rd6006p_TYPE_UNKNOWN;
 	}
+
 	//printf("reg[1]: %u", reg[1]);
 	//printf("reg[2]: %u", reg[2]);
 	info.serial = ((unsigned)reg[1] << 16) | (unsigned)reg[2];
+
+	//printf("reg[3]: %u", reg[3]);
+	info.fw_version_hi = reg[3] / 100;
+	info.fw_version_lo = reg[3] % 100;
+
+	//printf("reg[4]: %u", reg[4]);
+	//printf("reg[5]: %u", reg[5]);
+	info.temperature = reg[4] ? -(int)reg[5] : (int)reg[5];
 
 	//TODO
 

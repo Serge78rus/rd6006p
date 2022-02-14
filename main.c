@@ -216,11 +216,15 @@ static inline bool show_info(void)
 	}
 
 	printf("Device information\n"
-			"\tType:   %s (%u)\n"
-			"\tSerial: %010lu\n"
+			"\tType:        %s (%u)\n"
+			"\tSerial:      %010lu\n"
+			"\tFW version:  %u.%02u\n"
+			"\tTemperature: %i°C\n"
 			"\n",
 			type_str, (unsigned int)info->type,
-			(unsigned long)info->serial
+			(unsigned long)info->serial,
+			info->fw_version_hi, info->fw_version_lo,
+			info->temperature
 	);
 
 	return true;

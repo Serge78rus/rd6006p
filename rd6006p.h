@@ -36,6 +36,9 @@ typedef enum {
 typedef struct {
 	rd6006p_Type type;
 	uint32_t serial;
+	unsigned int fw_version_hi;
+	unsigned int fw_version_lo;
+	int temperature;
 	//TODO ...
 } rd6006p_Info;
 
