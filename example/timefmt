@@ -27,6 +27,6 @@ echo "Use sortable date and time (-tD %Y-%m-%d)"
 rd6006p -d $DEVICE -n 3 -tD %Y-%m-%d
 
 echo
-echo "Use all time mark (-StD %d.%m.%Y)"
+echo "Use all time marks (-StD %d.%m.%Y)"
 rd6006p -d $DEVICE -n 3 -StD %d.%m.%Y
 
