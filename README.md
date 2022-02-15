@@ -54,4 +54,5 @@ options:
 -i, --info             optional  show device information
                                  (default: false)
 ```
+See "example" directory for usage examples
                                  
