@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (!rd6006p_open(options->serial_device, options->baudrate, options->slave)) {
+	if (!rd6006p_open(options->serial_device, options->baudrate, options->slave, options->verbose_flag)) {
 		ERR_MSG("rd6006_open()");
 		rd6006p_close();
 		return 1;

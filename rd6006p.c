@@ -19,13 +19,16 @@ static inline bool read(int first_reg, int num_reg);
 static inline bool write(int first_reg, int num_reg);
 
 //private variables
+static bool verbose;
 static modbus_t *ctx = 0;
 static uint16_t reg[NUM_REG];
 static rd6006p_Status status;
 static rd6006p_Info info;
 
-bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave_addr)
+bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave_addr, bool verbose_flag)
 {
+	verbose = verbose_flag;
+
 	ctx = modbus_new_rtu(device, baudrate, 'N', 8, 1);
 	if (!ctx) {
 	    ERR_MSG_F("Failed to create MODBUS RTU context: %s", modbus_strerror(errno));
@@ -158,7 +161,7 @@ static inline bool read(int first_reg, int num_reg)
 		int num = modbus_read_registers(ctx, first_reg, num_reg, reg);
 		if (num == num_reg) {
 			return true;
-		} else { // invalid number of read registers
+		} else if (verbose) { // invalid number of read registers
 		    ERR_MSG_F("modbus_read_registers() returned %i expected %i attempt %i : %s",
 		    		num, num_reg, i + 1, modbus_strerror(errno));
 		}
@@ -172,7 +175,7 @@ static inline bool write(int first_reg, int num_reg)
 		int num = modbus_write_registers(ctx, first_reg, num_reg, reg);
 		if (num == num_reg) {
 			return true;
-		} else { // invalid number of write registers
+		} else if (verbose) { // invalid number of write registers
 		    ERR_MSG_F("modbus_write_registers() returned %i expected %i attempt %i : %s",
 		    		num, num_reg, i + 1, modbus_strerror(errno));
 		}

@@ -42,7 +42,7 @@ typedef struct {
 	//TODO ...
 } rd6006p_Info;
 
-bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave_addr);
+bool rd6006p_open(const char *device, unsigned long baudrate, unsigned int slave_addr, bool verbose_flag);
 void rd6006p_close(void);
 rd6006p_Status* rd6006p_get_status(void);
 bool rd6006p_set_voltage(double voltage);
