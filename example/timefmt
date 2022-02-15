@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#
+# example of different time formats 
+#
+
+DEVICE="/dev/ttyUSB0"
+
+echo
+echo "Without time"
+rd6006p -d $DEVICE -n 3
+
+echo
+echo "Use seconds from start (-S)"
+rd6006p -d $DEVICE -n 3 -S
+
+echo
+echo "Use time of day (-t)"
+rd6006p -d $DEVICE -n 3 -t
+
+echo
+echo "Use date and time (-tD %d.%m.%Y)"
+rd6006p -d $DEVICE -n 3 -tD %d.%m.%Y
+
+echo
+echo "Use sortable date and time (-tD %Y-%m-%d)"
+rd6006p -d $DEVICE -n 3 -tD %Y-%m-%d
+
+echo
+echo "Use all time mark (-StD %d.%m.%Y)"
+rd6006p -d $DEVICE -n 3 -StD %d.%m.%Y
+
